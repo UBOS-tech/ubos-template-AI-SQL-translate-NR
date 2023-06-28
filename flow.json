@@ -1,1 +1,133 @@
-[]
+[
+    {
+        "id": "b67ac217a50b62cb",
+        "type": "tab",
+        "label": "SQL translate",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "48b9340b2e5068fe",
+        "type": "function",
+        "z": "b67ac217a50b62cb",
+        "name": "OpenAI API properties",
+        "func": "\n//const api_key = global.get('process_env').OPENAI_API\nconst api_key = msg.payload.key;\nconst content = msg.payload.text;\n\n// OpenAI API properties\nconst settings = {\n    model: \"text-davinci-003\",\n    prompt: content,\n    temperature: 0,\n    max_tokens: 150,\n    top_p: 1.0,\n    frequency_penalty: 0.0,\n    presence_penalty: 0.0,\n    stop: [\"#\", \";\"],\n};\n\nif (api_key) {\n    msg.url = 'https://api.openai.com/v1/completions';\n    msg.headers = {\n        'Content-Type': 'application/json',\n        'Authorization': `Bearer ${api_key}`,\n    };\n    msg.payload = settings;\n    msg.settings = settings;\n    return [msg, null];\n} else {\n    msg.payload = settings;\n    msg.settings = settings;\n    return [null, msg];\n}\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 120,
+        "wires": [
+            [
+                "89e6448c2d0f9b4d"
+            ],
+            [
+                "c1520cdcd15a6ed7"
+            ]
+        ]
+    },
+    {
+        "id": "89e6448c2d0f9b4d",
+        "type": "http request",
+        "z": "b67ac217a50b62cb",
+        "name": "OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 670,
+        "y": 120,
+        "wires": [
+            [
+                "9640033fed5d8087"
+            ]
+        ]
+    },
+    {
+        "id": "9640033fed5d8087",
+        "type": "function",
+        "z": "b67ac217a50b62cb",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\nif (!msg.payload.error) {\n    msg.payload = {\n        succsess: true,\n        text: msg.payload.choices[0].text,\n        settings: convertPayloadToObject(msg.settings)\n    }\n} else {\n    msg.payload = {\n        succsess: false,\n        payload: msg.payload.error.code\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 120,
+        "wires": [
+            [
+                "a5e97c9dccf057d3"
+            ]
+        ]
+    },
+    {
+        "id": "a5e97c9dccf057d3",
+        "type": "http response",
+        "z": "b67ac217a50b62cb",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1050,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "fa25192b8f5ffcac",
+        "type": "http in",
+        "z": "b67ac217a50b62cb",
+        "name": "",
+        "url": "/createSQLtranslate",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "48b9340b2e5068fe"
+            ]
+        ]
+    },
+    {
+        "id": "c1520cdcd15a6ed7",
+        "type": "function",
+        "z": "b67ac217a50b62cb",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\n\nmsg.payload = {\n    settings: convertPayloadToObject(msg.settings)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 160,
+        "wires": [
+            [
+                "4e93499ef1f47ccd"
+            ]
+        ]
+    },
+    {
+        "id": "4e93499ef1f47ccd",
+        "type": "http response",
+        "z": "b67ac217a50b62cb",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 820,
+        "y": 160,
+        "wires": []
+    }
+]
